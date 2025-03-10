@@ -2,53 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Inscription
+    // Inscription (Web)
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+           'name'     => 'required|string|max:255',
+           'email'    => 'required|string|email|max:255|unique:users',
+           'password' => 'required|string|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+           return redirect()->back()
+                            ->withErrors($validator)
+                            ->withInput();
         }
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+           'name'     => $request->name,
+           'email'    => $request->email,
+           'password' => Hash::make($request->password),
         ]);
 
-        // Création du token via Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
+        Auth::login($user);
+        return redirect()->route('dashboard')->with('success', 'Inscription réussie !');
     }
 
-    // Connexion
+    // Connexion (Web)
     public function login(Request $request)
     {
-        if (!auth()->attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+           $request->session()->regenerate();
+           return redirect()->route('dashboard')->with('success', 'Connexion réussie !');
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['access_token' => $token, 'token_type' => 'Bearer']);
+        return redirect()->back()
+                         ->withErrors(['email' => 'Identifiants invalides'])
+                         ->withInput();
     }
 
-    // Déconnexion
+    // Déconnexion (Web)
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Déconnexion réussie']);
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('welcome')->with('success', 'Déconnexion réussie !');
     }
 }
