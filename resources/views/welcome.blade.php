@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="welcome-container">
-  <h2>Bienvenue sur la plateforme SportEvents</h2>
+  <h2>Bienvenue sur la plateforme BackSports-Events</h2>
   <p>Créez, découvrez et participez à des événements sportifs de qualité !</p>
   @if (Auth::check())
     <p>Connecté en tant que <strong>{{ Auth::user()->name }}</strong>.</p>

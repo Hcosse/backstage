@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title') - BackSports-Events</title>
-  <link rel="stylesheet" href="{{ asset('css\style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   @yield('css')
 </head>
 <body>
@@ -45,10 +45,10 @@
   </main>
 
   <footer class="site-footer">
-    <p>&copy; {{ date('Y') }} SportEvents. Tous droits réservés.</p>
+    <p>&copy; {{ date('Y') }} BackSports-Events. Tous droits réservés.</p>
   </footer>
 
-  <script src="{{ asset('js\app.js') }}"></script>
+  <script src="{{ asset('js/app.js') }}"></script>
   @yield('scripts')
 </body>
 </html>
